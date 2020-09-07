@@ -5,11 +5,11 @@ const SET_NAME = "SET_NAME"
 const SET_COMMENT = "SET-COMMENT"
 
 const initialState = {
-    lang: null,
-    data: null,
-    email: null,
-    name: null,
-    comment: null
+    lang: '',
+    data: '',
+    email: '',
+    name: '',
+    comment: ''
 }
 
 export const appReducer = (state = initialState, action) => {
@@ -31,6 +31,6 @@ export const appReducer = (state = initialState, action) => {
 
 export const setLang = (lang) => ({type: SET_LANG, lang})
 export const setData = (data) => ({type: SET_DATA, data})
-export const setEmail = (email) => ({type: SET_DATA, email})
-export const setName = (name) => ({type: SET_DATA, name})
-export const setComment = (comment) => ({type: SET_DATA, comment})
+export const setEmail = (email) => ({type: SET_EMAIL, email})
+export const setName = (name) => ({type: SET_NAME, name})
+export const setComment = (comment) => ({type: SET_COMMENT, comment})
