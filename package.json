@@ -1,8 +1,8 @@
 {
-  "name": "task",
-  "version": "1.0.1",
+  "name": "price-calc",
+  "version": "1.0.2",
   "private": true,
-  "homepage": "https://drew24n.github.io/task1/",
+  "homepage": "https://drew24n.github.io/react-price-calc-app/",
   "dependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

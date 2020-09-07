@@ -2,10 +2,10 @@ const SET_LANG = "SET_LANG"
 const SET_DATA = "SET_DATA"
 const SET_EMAIL = "SET_EMAIL"
 const SET_NAME = "SET_NAME"
-const SET_COMMENT = "SET-COMMENT"
+const SET_COMMENT = "SET_COMMENT"
 
 const initialState = {
-    lang: '',
+    currentLang: '',
     data: '',
     email: '',
     name: '',
@@ -15,7 +15,7 @@ const initialState = {
 export const appReducer = (state = initialState, action) => {
     switch (action.type) {
         case SET_LANG:
-            return {...state, lang: action.lang}
+            return {...state, currentLang: action.lang}
         case SET_DATA:
             return {...state, data: action.data}
         case SET_EMAIL:
