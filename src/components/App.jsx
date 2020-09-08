@@ -33,8 +33,8 @@ export const App = () => {
     }
 
     let contentLength = fileContentLength > 0 ? fileContentLength : appState.text.length
-    let genericPrice = languagePriceRate * contentLength
-    let finalPrice = genericPrice * fileTypePriceRate + genericPrice
+    let basicPrice = languagePriceRate * contentLength
+    let finalPrice = basicPrice * fileTypePriceRate + basicPrice
 
     const [price, setPrice] = useState(0)
 
@@ -44,6 +44,43 @@ export const App = () => {
         else setPrice(finalPrice)
     }, [appState.currentLang, contentLength, fileTypePriceRate])
     //price calculations end
+
+    //deadline and time calculations
+    const minTime = 3600
+    let currentSpeedRate = appState.currentLang === 'Английский' ? 0.093 : 0.37 //typing speed, symbols per second
+
+    const estimateJobTime = () => {
+        let basicTime = minTime + contentLength / currentSpeedRate
+        if (!contentLength || !appState.currentLang) return 0
+        return basicTime * fileTypePriceRate + basicTime //time depends on file type - fileTypePriceRate
+    }
+
+    const [time, setTime] = useState(0)
+    useEffect(() => setTime(estimateJobTime()), [contentLength, currentSpeedRate, fileTypePriceRate])
+
+    let h = time / 3600 ^ 0
+    let m = (time - h * 3600) / 60 ^ 0
+    let s = (time - h * 3600 - m * 60).toFixed()
+    // console.log((h < 10 ? "0" + h : h) + " ч. " + (m < 10 ? "0" + m : m) + " мин. " + (s < 10 ? "0" + s : s) + " сек.")
+
+    // let deadline = 0
+    // const calcDeadline = () => {
+    //     deadline = new Date()
+    //
+    //     let currentDay = deadline.getDay()
+    //     let currentHour = deadline.getHours()
+    //
+    //     if (currentDay === 5) deadline.setDate(deadline.getDate() + 2)
+    //     if (currentDay === 6) deadline.setDate(deadline.getDate() + 1)
+    //     if (currentHour >= 0 && currentHour <= 10) deadline.setHours(10, 0, 0)
+    //     if (currentHour >= 19) {
+    //         deadline.setHours(10, 0, 0)
+    //         deadline.setDate(deadline.getDate() + 1)
+    //     }
+    //     console.log(deadline)
+    // }
+    //
+    // calcDeadline()
 
     return <div className={style.container}>
         <form>
@@ -69,6 +106,6 @@ export const App = () => {
             {/*<button>Заказать</button>*/}
         </form>
         <div>Цена: {price.toFixed(2)}</div>
-        {/*<div>Время</div>*/}
+        <div>Время: {h} час {m} минут {s} секунд</div>
     </div>
 }
