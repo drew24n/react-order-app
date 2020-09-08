@@ -9,34 +9,41 @@ export const App = () => {
 
     const languages = ['Английский', 'Русский', 'Украинский']
 
+    //price calculations
     let languagePriceRate = appState.currentLang === 'Английский' ? 0.12 : 0.05
     let minPrice = appState.currentLang === 'Английский' ? 120 : 50
 
     const [fileTypePriceRate, setFileTypePriceRate] = useState(0)
     const [fileContentLength, setFileContentLength] = useState(0)
+
     const processFileData = (file) => {
         if (file.target.files[0]) {
             dispatch(setText(''))
             setFileContentLength(file.target.files[0].size)
             let fileType = file.target.files[0].name.split('.').pop()
-            if (fileType !== ('doc' || 'docx' || 'rtf')) setFileTypePriceRate(0.2)
-            else setFileTypePriceRate(0)
+            if (fileType !== ('doc' || 'docx' || 'rtf')) {
+                setFileTypePriceRate(0.2)
+            } else {
+                setFileTypePriceRate(0)
+            }
         } else {
             setFileContentLength(0)
             setFileTypePriceRate(0)
         }
     }
 
-    let dataLength = fileContentLength > 0 ? fileContentLength : appState.text.length
-    let price = languagePriceRate * dataLength
-    let priceWithRate = price * fileTypePriceRate + price
+    let contentLength = fileContentLength > 0 ? fileContentLength : appState.text.length
+    let genericPrice = languagePriceRate * contentLength
+    let finalPrice = genericPrice * fileTypePriceRate + genericPrice
 
-    const [finalPrice, setFinalPrice] = useState(0)
+    const [price, setPrice] = useState(0)
 
     useEffect(() => {
-        if (priceWithRate !== 0 && priceWithRate <= minPrice) setFinalPrice(minPrice)
-        else setFinalPrice(priceWithRate)
-    }, [appState.currentLang, dataLength, fileTypePriceRate])
+        if (!contentLength || !appState.currentLang) return setPrice(0)
+        if (finalPrice < minPrice) setPrice(minPrice)
+        else setPrice(finalPrice)
+    }, [appState.currentLang, contentLength, fileTypePriceRate])
+    //price calculations end
 
     return <div className={style.container}>
         <form>
@@ -61,7 +68,7 @@ export const App = () => {
             {/*       placeholder={'comment'}/>*/}
             {/*<button>Заказать</button>*/}
         </form>
-        <div>Цена: {finalPrice.toFixed(2)}</div>
+        <div>Цена: {price.toFixed(2)}</div>
         {/*<div>Время</div>*/}
     </div>
 }
