@@ -40,6 +40,17 @@ export const App = () => {
         }
     }
 
+    const resetInputFile = () => {
+        if (fileContentLength) {
+            document.getElementById('file_upload').type = ''
+            document.getElementById('file_upload').type = 'file'
+            setSelectedFileInfo('')
+            setFileContentLength(0)
+            setFileTypePriceRate(0)
+            contentLength = 0
+        }
+    }
+
     //deadline and job time calculations
     const [time, setTime] = useState(0)
 
@@ -101,22 +112,22 @@ export const App = () => {
                     <input value={appState.name} onChange={e => dispatch(setName(e.target.value))} type="text"
                            placeholder={'Ваше имя'}/>
                     <div className={style.inputData}>
-                        {selectedFileInfo
-                            ? <div className={style.selectedFile}>
-                                <div>{selectedFileInfo.name}</div>
-                                <div>Количество символов: {selectedFileInfo.size}</div>
-                                <div>загрузите файл</div>
-                            </div>
-                            : <textarea value={appState.text} onChange={e => dispatch(setText(e.target.value))}
-                                        placeholder={'Введите текст или'}/>
-                        }
+                        <div style={fileContentLength ? {display: 'flex'} : {display: 'none'}}
+                             className={style.selectedFile}>
+                            <div>{selectedFileInfo.name}</div>
+                            <div>Количество символов: {selectedFileInfo.size}</div>
+                            <div onClick={resetInputFile}>загрузите файл</div>
+                        </div>
+                        <textarea style={fileContentLength ? {display: 'none'} : {display: 'inline-block'}}
+                                  value={appState.text} onChange={e => dispatch(setText(e.target.value))}
+                                  placeholder={'Введите текст или'}/>
                         <div
                             className={style.contentLength}>{!contentLength || selectedFileInfo ? '' : contentLength}</div>
-                        {!contentLength && !selectedFileInfo &&
-                        <label htmlFor="image_uploads">загрузите файл
-                            <input id="image_uploads" type="file" onChange={e => processFileData(e)}/>
+                        <label
+                            style={fileContentLength > 0 ? {display: 'none'} : {display: 'inline-block'}}
+                            htmlFor="file_upload">загрузите файл
+                            <input id="file_upload" type="file" onChange={e => processFileData(e)}/>
                         </label>
-                        }
                     </div>
                 </div>
                 <div className={style.secondSection} onChange={e => dispatch(setLang(e.target.value))}>
