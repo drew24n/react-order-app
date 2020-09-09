@@ -1,2 +1,30 @@
+* {
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  letter-spacing: normal;
+}
+
 .container {
+  display: grid;
+  max-width: 1140px;
+  grid-gap: 20px;
+  grid-template-columns: 75% auto;
+  padding: 0 15px;
+  margin: 0 auto;
+
+  input[type='text'], input[type='email'] {
+    width: 100%;
+  }
+  textarea {
+    width: 100%;
+  }
+
+  .firstSection {
+    margin-top: 55px;
+  }
+  .secondSection {
+
+  }
+  .thirdSection {
+
+  }
 }
