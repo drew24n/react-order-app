@@ -13,6 +13,7 @@ export const App = () => {
     const [fileTypePriceRate, setFileTypePriceRate] = useState(0)
     const [fileContentLength, setFileContentLength] = useState(0)
     const [price, setPrice] = useState(0)
+    const [selectedFileInfo, setSelectedFileInfo] = useState('')
 
     let languagePriceRate = appState.currentLang === 'Английский' ? 0.12 : 0.05
     let minPrice = appState.currentLang === 'Английский' ? 120 : 50
@@ -23,6 +24,7 @@ export const App = () => {
 
     const processFileData = (file) => {
         if (file.target.files[0]) {
+            setSelectedFileInfo(file.target.files[0])
             dispatch(setText(''))
             setFileContentLength(file.target.files[0].size)
             let fileType = file.target.files[0].name.split('.').pop()
@@ -32,6 +34,7 @@ export const App = () => {
                 setFileTypePriceRate(0)
             }
         } else {
+            setSelectedFileInfo('')
             setFileContentLength(0)
             setFileTypePriceRate(0)
         }
@@ -83,45 +86,65 @@ export const App = () => {
     }, [contentLength, fileTypePriceRate, appState.currentLang, currentSpeedRate, finalPrice, minPrice])
 
     return (
-        <form className={style.container}>
+        <form onSubmit={e => e.preventDefault()} className={style.container}>
             <div>
                 <div className={style.firstSection}>
-                    <h3>ЗАКАЗАТЬ РЕДАКТИРОВАНИЕ</h3>
+                    <h3>ЗАКАЗ РЕДАКТИРОВАНИЯ</h3>
                     <p>Исправим все ошибки и огрехи, уберем все глупости из текста, перефразируем неудачные места, но
                         сильно переписывать текст не станем. Лишних правок не будет.
-                        <a href="/#"> Подробнее о редактировании</a>
+                        <a href="/#">Подробнее о редактировании</a>
                     </p>
-                    <input value={appState.email} onChange={e => dispatch(setEmail(e.target.value))} type="email"
-                           placeholder={'Ваша эл. почта'}/>
+                    <div className={style.requiredField}>
+                        <input value={appState.email} onChange={e => dispatch(setEmail(e.target.value))} type="email"
+                               placeholder={'Ваша эл. почта'} required={true}/>
+                    </div>
                     <input value={appState.name} onChange={e => dispatch(setName(e.target.value))} type="text"
                            placeholder={'Ваше имя'}/>
-                    <div>
-                        <textarea value={appState.text} onChange={e => dispatch(setText(e.target.value))}
-                                  placeholder={'Введите текст или загрузите файл'}/>
+                    <div className={style.inputData}>
+                        {selectedFileInfo
+                            ? <div className={style.selectedFile}>
+                                <div>{selectedFileInfo.name}</div>
+                                <div>Количество символов: {selectedFileInfo.size}</div>
+                                <div>загрузите файл</div>
+                            </div>
+                            : <textarea value={appState.text} onChange={e => dispatch(setText(e.target.value))}
+                                        placeholder={'Введите текст или'}/>
+                        }
+                        <div
+                            className={style.contentLength}>{!contentLength || selectedFileInfo ? '' : contentLength}</div>
+                        {!contentLength && !selectedFileInfo &&
                         <label htmlFor="image_uploads">загрузите файл
                             <input id="image_uploads" type="file" onChange={e => processFileData(e)}/>
                         </label>
-                        <div>{contentLength}</div>
+                        }
                     </div>
                 </div>
-                <div onChange={e => dispatch(setLang(e.target.value))}>
-                    <h3>Язык</h3>
-                    {languages.map((l, index) => (
-                        <div key={index}>
-                            <input type="radio" name={'lang'} value={l} id={l}/>
-                            <label htmlFor={l}>{l}</label>
-                        </div>
-                    ))}
+                <div className={style.secondSection} onChange={e => dispatch(setLang(e.target.value))}>
+                    <h3>ЯЗЫК</h3>
+                    <div className={style.languages}>
+                        {languages.map((l, index) => (
+                            <div key={index}>
+                                <input type="radio" name={'lang'} value={l} id={l}/>
+                                <label htmlFor={l}>{l}</label>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <div>
+                <div className={style.thirdSection}>
                     <input value={appState.comment} onChange={e => dispatch(setComment(e.target.value))} type="text"
                            placeholder={'Короткий комментарий или ссылка'}/>
                 </div>
             </div>
             <div>
-                <div>{price.toFixed(2)} грн.</div>
-                <div>Сдадим через: {h} ч. {m} мин. {s} сек.</div>
-                <button>Заказать</button>
+                <div className={style.orderInfo}>
+                    <div className={style.priceTime}>
+                        <div>{price.toFixed(2)} грн</div>
+                        <div style={time ? {visibility: 'visible'} : {visibility: 'hidden'}}>
+                            Сдадим через: {h} ч. {m} мин. {s} сек.
+                        </div>
+                    </div>
+                    <button>Заказать</button>
+                </div>
             </div>
         </form>
     )
