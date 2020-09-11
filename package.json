@@ -1,8 +1,8 @@
 {
-  "name": "price-calc",
-  "version": "1.0.3",
+  "name": "order-app",
+  "version": "2.0.1",
   "private": true,
-  "homepage": "https://drew24n.github.io/react-price-calc-app/",
+  "homepage": "https://drew24n.github.io/react-order-app/",
   "dependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

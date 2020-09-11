@@ -1,0 +1,123 @@
+.container {
+  margin-top: 55px;
+
+  > div {
+    padding: 0 15px;
+  }
+
+  p {
+    line-height: 26px;
+    font-size: 15px;
+    margin: 0 0 8px;
+
+    a {
+      text-decoration: none;
+      color: #4a90e2;
+      margin-left: 4px;
+      outline: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  textarea {
+    padding: 10px;
+    height: 250px;
+    resize: none;
+  }
+
+  .selectedFile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 250px;
+    background-color: #eaeaea;
+
+    div:first-child {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    div:nth-child(2) {
+      font-size: 15px;
+    }
+
+    div:nth-child(3) {
+      font-size: 13px;
+      margin-top: 5px;
+      cursor: pointer;
+      color: #999999;
+      border-bottom: 1px dashed #999999;
+
+      &:hover {
+        border-bottom-style: solid;
+      }
+    }
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .inputData {
+    position: relative;
+    height: 254px;
+
+    input[type='file'] {
+      display: none;
+    }
+
+    label {
+      position: absolute;
+      top: 11px;
+      left: 155px;
+      color: #4a90e2;
+      cursor: pointer;
+
+      &:hover {
+        color: #ff0000;
+      }
+    }
+  }
+
+  .requiredField {
+    position: relative;
+
+    &:before {
+      content: "*";
+      position: absolute;
+      color: red;
+      top: -5px;
+      left: -12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+  }
+
+  .contentLength {
+    position: absolute;
+    bottom: -16px;
+    left: 2px;
+    color: #999;
+    font-weight: 700;
+    font-size: 12px;
+    background-color: #fff;
+  }
+}
+
+@media (max-width: 568px) {
+  .container {
+    h3 {
+      font-size: 14px;
+    }
+
+    p {
+      font-size: 13px;
+    }
+  }
+}

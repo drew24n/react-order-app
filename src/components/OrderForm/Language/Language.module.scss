@@ -1,0 +1,56 @@
+.container {
+  margin-top: 40px;
+
+  > div {
+    padding: 0 15px;
+  }
+
+  h3 {
+    font-size: 13px;
+  }
+
+  .languages {
+    display: grid;
+    grid-gap: 15px;
+
+    label {
+      height: inherit;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      cursor: pointer;
+
+      input {
+        display: none;
+        margin-right: 5px;
+        cursor: pointer;
+      }
+
+      div {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        top: -2px;
+        left: -1px;
+        content: '';
+        display: inline-block;
+        visibility: visible;
+        border: 1px solid #4a90e2;
+      }
+
+      span {
+        position: relative;
+        width: 5px;
+        left: -10px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: #fff;
+      }
+
+      input:checked + div {
+        background-color: #4a90e2;
+      }
+    }
+  }
+}
