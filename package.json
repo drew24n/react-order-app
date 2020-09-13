@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://drew24n.github.io/react-order-app/",
   "dependencies": {
+    "datejs": "^1.0.0-rc3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.1",

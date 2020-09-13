@@ -5,16 +5,22 @@ import {useSelector} from "react-redux";
 export const OrderInfo = () => {
     let appState = useSelector(state => state.app)
 
-    let hours = appState.time / 3600 ^ 0
-    let minutes = (appState.time - hours * 3600) / 60 ^ 0
+    let time = new Date().clearTime().addSeconds(appState.time).toString(`H ч. mm мин.`);
 
     return (
         <div>
             <div className={style.container}>
                 <div className={style.priceTime}>
-                    <div>{appState.price.toLocaleString('ru', {minimumFractionDigits: 2})} грн</div>
+                    <div>{appState.price.toLocaleString('ru', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })} грн
+                    </div>
                     <div style={appState.time ? {visibility: 'visible'} : {visibility: 'hidden'}}>
-                        Время выполнения: {hours} ч {minutes} мин
+                        {typeof appState.time === 'number'
+                            ? `Время выполнения: ${time}`
+                            : `Срок сдачи: ${appState.time.toString('d.MM.yy')} в ${appState.time.toString('HH:mm')}`
+                        }
                     </div>
                 </div>
                 <button>Заказать</button>
