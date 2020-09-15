@@ -17,29 +17,54 @@ export const App = () => {
     let finalPrice = basicPrice * appState.priceRate + basicPrice
 
     //time calculations
-    let minTime = 3600
+    let minTime = 1800
     let speedRate = appState.lang === 'Английский' ? (333 / 3600) : (1333 / 3600)
     let basicTime = minTime + appState.contentSize / speedRate
-    let orderTime = basicTime * appState.priceRate + basicTime //order time (ms) with price rate included
+    let timeWithPriceRate = basicTime * appState.priceRate + basicTime
 
-    //date calculations
-    let date = Date.today() //current date
-    let weekDay = date.getDay() //day of week
-
-    let workingTimeLeft = date.setHours(19) - date.setTimeToNow() //working time left until 19:00 PM
-
-    let deadline = () => {
-        if (weekDay === 6 || weekDay === 0) { //check if saturday or sunday - move to monday and set time for 10:00
-            return new Date(date.next().monday().setHours(10, 0, orderTime))
-        } else if (workingTimeLeft - orderTime * 1000 >= 0) { //working day - check if enough time to finish an order
-            return orderTime //if order can be done today - return just a time
-        } else if (workingTimeLeft - orderTime * 1000 < 0 && weekDay === 5) { //check if friday and not enough time
-            return new Date(date.next().monday().setHours(10, 0, orderTime)) //go to next monday and set 10:00
-        } else return new Date(date.addDays(1).setHours(10, 0, orderTime)) //move to next day
+    //rounding minutes (+30 min step)
+    function roundOrderTime(orderTime) {
+        let hours = Math.floor(orderTime / 3600)
+        let minutes = Math.floor((orderTime - (hours * 3600)) / 60)
+        let seconds = orderTime - (hours * 3600) - (minutes * 60)
+        if (minutes <= 29.9999) {
+            return new Date().clearTime().addHours(hours).addMinutes(30).addSeconds(seconds)
+        } else return new Date().clearTime().addHours(hours + 1)
     }
 
-    let processFile = (file) => {
-        if (file.target.files[0] && file.target.files[0].size > 0) {
+    let orderTime = roundOrderTime(timeWithPriceRate)
+    let orderTimeToMs = orderTime.getHours() * 3600000 + orderTime.getMinutes() * 60000 + orderTime.getSeconds() * 1000
+
+    //date calculations
+    const date = Date.today()
+    let weekDay = date.getDay() //day of week
+
+    //working time left until 19:00
+    let workingTimeLeft = date.setHours(19) - date.setTimeToNow()
+
+    //check if working day has already begun
+    let workingDayStarted = new Date(date.setTimeToNow()) - new Date(date.clearTime().setHours(10, 0, 0)) >= 0
+
+    //deadline
+    function calcDeadline() {
+        //check if saturday or sunday - move to monday and set time for 10:00 + order time
+        if (weekDay === 6 || weekDay === 0) {
+            return new Date(date.next().monday().setHours(10 + orderTime.getHours(), orderTime.getMinutes()))
+        } else if (weekDay === 5 && workingTimeLeft - orderTimeToMs < 0) {
+            //check if friday and not enough working time - go to next monday and set 10:00 + order time
+            return new Date(date.next().monday().setHours(10 + orderTime.getHours(), orderTime.getMinutes()))
+        } else if (workingDayStarted && workingTimeLeft - orderTimeToMs < 0) {
+            //working day started and not enough time for order - go to another day at 10:00 + order time
+            return new Date(date.addDays(1).setHours(10 + orderTime.getHours(), orderTime.getMinutes()))
+        } else if (!workingDayStarted) {
+            //if working day not started - set 10 hours + order time
+            return new Date(date.setHours(10 + orderTime.getHours(), orderTime.getMinutes()))
+            //if working day and order can be done today - return just a time
+        } else return orderTime.toString(`H ч. mm мин.`)
+    }
+
+    function processFile(file) {
+        if (file.target.files[0].size > 0) {
             dispatch(setFileName(file.target.files[0].name))
             dispatch(setContentSize(file.target.files[0].size + 1))
             let fileType = file.target.files[0].name.split('.').pop()
@@ -48,7 +73,7 @@ export const App = () => {
         }
     }
 
-    let resetFile = () => {
+    function resetFile() {
         document.getElementById('file_upload').type = 'text'
         document.getElementById('file_upload').type = 'file'
         dispatch(setFileName(''))
@@ -58,14 +83,14 @@ export const App = () => {
 
     useEffect(() => {
         if (appState.contentSize && appState.lang) {
-            dispatch(setTime(deadline()))
+            dispatch(setTime(calcDeadline()))
             if (finalPrice < minPrice) dispatch(setPrice(minPrice))
             else dispatch(setPrice(finalPrice))
         } else {
-            dispatch(setTime(0))
+            dispatch(setTime(''))
             dispatch(setPrice(0))
         }
-    }, [appState.contentSize, appState.lang, dispatch, finalPrice, minPrice])
+    }, [appState.contentSize, appState.lang])
 
     return (
         <form onSubmit={e => e.preventDefault()} className={style.container}>

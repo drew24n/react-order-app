@@ -19,7 +19,7 @@ const initialState = {
     contentSize: 0,
     fileName: '',
     price: 0,
-    time: 0
+    time: ''
 }
 
 export const appReducer = (state = initialState, action) => {

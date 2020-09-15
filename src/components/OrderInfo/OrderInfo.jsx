@@ -5,8 +5,6 @@ import {useSelector} from "react-redux";
 export const OrderInfo = () => {
     let appState = useSelector(state => state.app)
 
-    let time = new Date().clearTime().addSeconds(appState.time).toString(`H ч. mm мин.`);
-
     return (
         <div>
             <div className={style.container}>
@@ -17,9 +15,9 @@ export const OrderInfo = () => {
                     })} грн
                     </div>
                     <div style={appState.time ? {visibility: 'visible'} : {visibility: 'hidden'}}>
-                        {typeof appState.time === 'number'
-                            ? `Время выполнения: ${time}`
-                            : `Срок сдачи: ${appState.time.toString('d.MM.yy')} в ${appState.time.toString('HH:mm')}`
+                        {appState.time.toString().length > 12
+                            ? `Срок сдачи: ${appState.time.toString('d.MM.yy')} в ${appState.time.toString('HH:mm')}`
+                            : `Время выполнения: ${appState.time}`
                         }
                     </div>
                 </div>
