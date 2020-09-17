@@ -7,60 +7,54 @@ import {setContentSize, setFileName, setPrice, setPriceRate, setTime} from "./re
 import 'datejs';
 
 export const App = () => {
+    //redux
     let dispatch = useDispatch()
     let appState = useSelector(state => state.app)
 
     //price calculations
-    let minPrice = appState.lang === 'Английский' ? 120 : 50
+    let minBasicPrice = appState.lang === 'Английский' ? 120 : 50
     let languagePriceRate = appState.lang === 'Английский' ? 0.12 : 0.05
-    let basicPrice = languagePriceRate * appState.contentSize
-    let finalPrice = basicPrice * appState.priceRate + basicPrice
+    let price = languagePriceRate * appState.contentSize
+    let orderPrice = price * appState.priceRate + price
 
-    //time calculations
-    let minTime = 1800
+    //order time calculations
+    let minBasicTime = 1800
     let speedRate = appState.lang === 'Английский' ? (333 / 3600) : (1333 / 3600)
-    let basicTime = minTime + appState.contentSize / speedRate
-    let timeWithPriceRate = basicTime * appState.priceRate + basicTime
+    let time = minBasicTime + appState.contentSize / speedRate
+    let timeWithRate = time * appState.priceRate + time //time required to complete an order (seconds)
 
-    //rounding minutes (+30 min step)
-    function roundOrderTime(orderTime) {
-        let hours = Math.floor(orderTime / 3600)
-        let minutes = Math.floor((orderTime - (hours * 3600)) / 60)
-        let seconds = orderTime - (hours * 3600) - (minutes * 60)
-        if (minutes <= 29.9999) {
-            return new Date().clearTime().addHours(hours).addMinutes(30).addSeconds(seconds)
-        } else return new Date().clearTime().addHours(hours + 1)
+    //round order time to the closest 30 minutes / hour, return seconds
+    function roundOrderTime(timeWithRate) {
+        let hours = Math.floor(timeWithRate / 3600)
+        let minutes = Math.floor((timeWithRate - (hours * 3600)) / 60)
+        if (minutes <= 30) return hours === 0 ? 3600 : hours * 3600 + 1800
+        else return (hours + 1) * 3600
     }
 
-    let orderTime = roundOrderTime(timeWithPriceRate)
-    let orderTimeToMs = orderTime.getHours() * 3600000 + orderTime.getMinutes() * 60000 + orderTime.getSeconds() * 1000
+    let orderTime = roundOrderTime(timeWithRate)
 
     //date calculations
-    const date = Date.today()
-    let weekDay = date.getDay() //day of week
+    let date = () => new Date(Date.today()).setTimeToNow()
 
-    //working time left until 19:00
-    let workingTimeLeft = date.setHours(19) - date.setTimeToNow()
+    //Test - uncomment to test custom date and time. Order time - seconds.
+    // orderTime = 1200
+    // date = () => new Date(Date.today().set({year: 2020, month: 8, day: 17, hour: 15, minute: 20}))
 
-    //check if working day has already begun
-    let workingDayStarted = new Date(date.setTimeToNow()) - new Date(date.clearTime().setHours(10, 0, 0)) >= 0
+    function calcDeadline(orderTime, date) {
+        let weekDay = date.getDay()
+        let timeNow = date.getTime()
+        let isWorkingDayStarted = timeNow - date.clearTime().set({hour: 10, minute: 0, second: 0}).getTime() >= 0
+        let workingTimeLeft = (date.set({hour: 19, minute: 0, second: 0}).getTime() - timeNow) / 1000
 
-    //deadline
-    function calcDeadline() {
-        //check if saturday or sunday - move to monday and set time for 10:00 + order time
         if (weekDay === 6 || weekDay === 0) {
-            return new Date(date.next().monday().setHours(10 + orderTime.getHours(), orderTime.getMinutes()))
-        } else if (weekDay === 5 && workingTimeLeft - orderTimeToMs < 0) {
-            //check if friday and not enough working time - go to next monday and set 10:00 + order time
-            return new Date(date.next().monday().setHours(10 + orderTime.getHours(), orderTime.getMinutes()))
-        } else if (workingDayStarted && workingTimeLeft - orderTimeToMs < 0) {
-            //working day started and not enough time for order - go to another day at 10:00 + order time
-            return new Date(date.addDays(1).setHours(10 + orderTime.getHours(), orderTime.getMinutes()))
-        } else if (!workingDayStarted) {
-            //if working day not started - set 10 hours + order time
-            return new Date(date.setHours(10 + orderTime.getHours(), orderTime.getMinutes()))
-            //if working day and order can be done today - return just a time
-        } else return orderTime.toString(`H ч. mm мин.`)
+            return new Date(date.next().monday().setHours(10, 0, orderTime))
+        } else if (weekDay === 5 && isWorkingDayStarted && workingTimeLeft - orderTime < 0) {
+            return new Date(date.next().monday().setHours(10, 0, orderTime))
+        } else if (isWorkingDayStarted && workingTimeLeft - orderTime < 0) {
+            return new Date(date.addDays(1).setHours(10, 0, orderTime))
+        } else if (!isWorkingDayStarted) {
+            return new Date(date.setHours(10, 0, orderTime))
+        } else return orderTime
     }
 
     function processFile(file) {
@@ -83,14 +77,14 @@ export const App = () => {
 
     useEffect(() => {
         if (appState.contentSize && appState.lang) {
-            dispatch(setTime(calcDeadline()))
-            if (finalPrice < minPrice) dispatch(setPrice(minPrice))
-            else dispatch(setPrice(finalPrice))
+            dispatch(setTime(calcDeadline(orderTime, date())))
+            if (orderPrice < minBasicPrice) dispatch(setPrice(minBasicPrice))
+            else dispatch(setPrice(orderPrice))
         } else {
             dispatch(setTime(''))
             dispatch(setPrice(0))
         }
-    }, [appState.contentSize, appState.lang])
+    }, [appState.contentSize, appState.lang, dispatch, minBasicPrice, orderPrice, orderTime])
 
     return (
         <form onSubmit={e => e.preventDefault()} className={style.container}>
