@@ -11,7 +11,7 @@ export const OrderInfo = () => {
         return `Выполним через: ${hours ? `${hours} ч.` : ''} ${minutes ? `${minutes} мин.` : ''}`
     }
 
-    let formatDate = (date) => `Срок сдачи: ${date.toString('d.MM.yy')} в ${date.toString('HH:mm')}`
+    let formatDate = (date) => `Срок сдачи: ${date.slice(0, 8)} в ${date.slice(11, -3)}`
 
     return (
         <div>
@@ -23,7 +23,7 @@ export const OrderInfo = () => {
                     })} грн
                     </div>
                     <div style={appState.time ? {visibility: 'visible'} : {visibility: 'hidden'}}>
-                        {appState.time.toString().length === 64 ? formatDate(appState.time) : calcTime(appState.time)}
+                        {appState.time.toString().length === 20 ? formatDate(appState.time) : calcTime(appState.time)}
                     </div>
                 </div>
                 <button>Заказать</button>
