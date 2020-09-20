@@ -7,7 +7,8 @@ const SET_PRICE_RATE = "SET_PRICE_RATE"
 const SET_CONTENT_SIZE = "SET_CONTENT_SIZE"
 const SET_FILE_NAME = "SET_FILE_NAME"
 const SET_PRICE = "SET_PRICE"
-const SET_TIME = "SET_TIME"
+const SET_DATE = "SET_DATE"
+const SET_ORDER_TIME = "SET_ORDER_TIME"
 
 const initialState = {
     lang: '',
@@ -19,7 +20,8 @@ const initialState = {
     contentSize: 0,
     fileName: '',
     price: 0,
-    time: ''
+    date: '',
+    orderTime: 0
 }
 
 export const appReducer = (state = initialState, action) => {
@@ -28,20 +30,16 @@ export const appReducer = (state = initialState, action) => {
             return {...state, lang: action.lang}
         case SET_TEXT:
             return {...state, text: action.text, contentSize: action.text.length}
-        case SET_EMAIL:
-            return {...state, email: action.email}
-        case SET_NAME:
-            return {...state, name: action.name}
-        case SET_COMMENT:
-            return {...state, comment: action.comment}
         case SET_PRICE_RATE:
             return {...state, priceRate: action.priceRate}
         case SET_CONTENT_SIZE:
             return {...state, contentSize: action.contentSize}
         case SET_FILE_NAME:
             return {...state, fileName: action.fileName}
-        case SET_TIME:
-            return {...state, time: action.time}
+        case SET_DATE:
+            return {...state, date: action.date}
+        case SET_ORDER_TIME:
+            return {...state, orderTime: action.orderTime}
         case SET_PRICE:
             return {...state, price: action.price}
         default:
@@ -57,5 +55,6 @@ export const setComment = (comment) => ({type: SET_COMMENT, comment})
 export const setPriceRate = (priceRate) => ({type: SET_PRICE_RATE, priceRate})
 export const setContentSize = (contentSize) => ({type: SET_CONTENT_SIZE, contentSize})
 export const setFileName = (fileName) => ({type: SET_FILE_NAME, fileName})
-export const setTime = (time) => ({type: SET_TIME, time})
+export const setDate = (date) => ({type: SET_DATE, date})
+export const setOrderTime = (orderTime) => ({type: SET_ORDER_TIME, orderTime})
 export const setPrice = (price) => ({type: SET_PRICE, price})

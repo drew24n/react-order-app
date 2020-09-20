@@ -3,43 +3,38 @@ import style from './App.module.scss';
 import {OrderForm} from "./components/OrderForm/OrderForm";
 import {OrderInfo} from "./components/OrderInfo/OrderInfo";
 import {useDispatch, useSelector} from "react-redux";
-import {setContentSize, setFileName, setPrice, setPriceRate, setTime} from "./redux/appReducer";
+import {setContentSize, setFileName, setPrice, setPriceRate, setDate, setOrderTime} from "./redux/appReducer";
+import {store} from "./redux/store";
 import 'datejs';
 
 //deadline calculation function
-
-export function calcDeadline(time, date) {
+export function calcDeadline(orderTime, date) {
+    date = Date.parse(date)
     let weekDay = date.getDay()
     let timeNow = date.getTime()
-    let isWorkingDayStarted = timeNow - date.clearTime().set({hour: 10, minute: 0, second: 0}).getTime() >= 0
+    let isWorkingDayStarted = timeNow - date.set({hour: 10, minute: 0, second: 0}).getTime() >= 0
     let workingTimeLeft = (date.set({hour: 19, minute: 0, second: 0}).getTime() - timeNow) / 1000
-
-    //round order time to the closest 30 minutes / hour, returns seconds
-    function roundOrderTime() {
-        let hours = Math.floor(time / 3600)
-        let minutes = Math.floor((time - (hours * 3600)) / 60)
-        if (minutes <= 30) return hours === 0 ? 3600 : hours * 3600 + 1800
-        else return (hours + 1) * 3600
-    }
-
-    let orderTime = roundOrderTime()
 
     if (weekDay === 6 || weekDay === 0) {
         return new Date(date.next().monday().setHours(10, 0, orderTime))
-            .toLocaleString("ru", {timeZone: "Europe/Kiev"})
+            .toString('dddd, dd/MM/yyyy, HH:mm')
     } else if (weekDay === 5 && isWorkingDayStarted && workingTimeLeft - orderTime < 0) {
         return new Date(date.next().monday().setHours(10, 0, orderTime))
-            .toLocaleString("ru", {timeZone: "Europe/Kiev"})
+            .toString('dddd, dd/MM/yyyy, HH:mm')
     } else if (isWorkingDayStarted && workingTimeLeft - orderTime < 0) {
         return new Date(date.addDays(1).setHours(10, 0, orderTime))
-            .toLocaleString("ru", {timeZone: "Europe/Kiev"})
+            .toString('dddd, dd/MM/yyyy, HH:mm')
     } else if (!isWorkingDayStarted) {
         return new Date(date.setHours(10, 0, orderTime))
-            .toLocaleString("ru", {timeZone: "Europe/Kiev"})
-    } else return orderTime
+            .toString('dddd, dd/MM/yyyy, HH:mm')
+    } else {
+        store.dispatch(setOrderTime(orderTime)) //if order can be done today - set time
+        return new Date(date.setTime(timeNow)).addSeconds(orderTime) //return date for testing purposes
+            .toString('dddd, dd/MM/yyyy, HH:mm')
+    }
 }
 
-////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 
 export const App = () => {
     //redux
@@ -58,7 +53,8 @@ export const App = () => {
     let basicTime = minBasicTime + appState.contentSize / speedRate
     let time = basicTime * appState.priceRate + basicTime //time required to complete an order (seconds)
 
-    let date = () => new Date(Date.today()).setTimeToNow() //current date
+    //current date and time
+    let date = () => new Date(Date.today()).setTimeToNow()
 
     function processFile(file) {
         if (file.target.files[0].size > 0) {
@@ -80,11 +76,12 @@ export const App = () => {
 
     useEffect(() => {
         if (appState.contentSize && appState.lang) {
-            dispatch(setTime(calcDeadline(time, date())))
+            dispatch(setDate(calcDeadline(time, date())))
             if (orderPrice < minBasicPrice) dispatch(setPrice(minBasicPrice))
             else dispatch(setPrice(orderPrice))
         } else {
-            dispatch(setTime(''))
+            dispatch(setOrderTime(0))
+            dispatch(setDate(''))
             dispatch(setPrice(0))
         }
     }, [appState.contentSize, appState.lang, dispatch, minBasicPrice, orderPrice, time])
@@ -92,7 +89,7 @@ export const App = () => {
     return (
         <form onSubmit={e => e.preventDefault()} className={style.container}>
             <OrderForm processFile={processFile} resetFile={resetFile}/>
-            <OrderInfo/>
+            <OrderInfo time={time}/>
         </form>
     )
 }

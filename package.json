@@ -1,6 +1,6 @@
 {
   "name": "order-app",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "homepage": "https://drew24n.github.io/react-order-app/",
   "dependencies": {
