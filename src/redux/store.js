@@ -1,7 +1,7 @@
 import {combineReducers, compose, createStore} from "redux";
 import {composeWithDevTools} from "redux-devtools-extension";
-import {appReducer} from "./appReducer";
+import {orderReducer} from "./orderReducer";
 
-const rootReducer = combineReducers({app: appReducer})
+const rootReducer = combineReducers({order: orderReducer})
 
 export const store = createStore(rootReducer, compose(composeWithDevTools() ? composeWithDevTools() : f => f))

@@ -1,49 +1,29 @@
-import React from 'react';
+import React, {memo} from 'react';
 import style from "./OrderInfo.module.scss";
 import {useSelector} from "react-redux";
 
-export const OrderInfo = ({time}) => {
-    let appState = useSelector(state => state.app)
+function OrderInfo() {
+    const orderState = useSelector(state => state.order)
 
-    function roundOrderTime() {
-        let hours = Math.floor(appState.orderTime / 3600)
-        let minutes = Math.floor((appState.orderTime - (hours * 3600)) / 60)
-        if (minutes <= 30) return hours === 0 ? '1 ч.' : `${hours} ч. 30 мин.`
-        else return (hours + 1) + ' ч.'
-    }
-
-    function roundDeadlineTime() {
-        let hours = Math.floor(time / 3600)
-        let minutes = Math.floor((time - (hours * 3600)) / 60)
+    const roundedTime = function () {
+        const hours = Math.floor(orderState.time / 3600)
+        const minutes = Math.floor((orderState.time - (hours * 3600)) / 60)
         if (minutes <= 30) {
-            if (hours === 0) {
-                return new Date(Date.parse(appState.date)).addHours(1).setMinutes(0)
-            } else {
-                return new Date(Date.parse(appState.date)).setMinutes(30)
-            }
-        } else {
-            return new Date(Date.parse(appState.date)).addHours(1).setMinutes(0)
-        }
-    }
+            return hours === 0 ? '1h' : `${hours}h 30m`
+        } else return (hours + 1) + 'h'
+    }()
 
     return (
         <div>
             <div className={style.container}>
                 <div className={style.priceTime}>
-                    <div>{appState.price.toLocaleString('ru', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    })} грн
-                    </div>
-                    <div style={appState.date ? {visibility: 'visible'} : {visibility: 'hidden'}}>
-                        {appState.orderTime
-                            ? `Выполним через: ${roundOrderTime()}`
-                            : new Date(roundDeadlineTime()).toString('Срок сдачи: dd.MM.yyyy в HH:mm')
-                        }
-                    </div>
+                    <div>{orderState.price.toFixed(2)} UAH</div>
+                    <div>{orderState.time ? `Will be done in: ${roundedTime}` : null}</div>
                 </div>
-                <button>Заказать</button>
+                <button>Order</button>
             </div>
         </div>
     )
 }
+
+export default memo(OrderInfo)
