@@ -3,11 +3,13 @@ const SET_PRICE_RATE = "SET_PRICE_RATE"
 const SET_CONTENT = "SET_CONTENT"
 const SET_PRICE = "SET_PRICE"
 const SET_TIME = "SET_TIME"
+const SET_DEADLINE = "SET_DEADLINE"
 
 const initialState = {
     lang: '',
     priceRate: 0,
     time: 0,
+    deadline: '',
     price: 0,
     content: {
         text: '',
@@ -26,6 +28,8 @@ export const orderReducer = (state = initialState, action) => {
             return {...state, price: action.price}
         case SET_TIME:
             return {...state, time: action.time}
+        case SET_DEADLINE:
+            return {...state, deadline: action.deadline}
         case SET_CONTENT:
             return {
                 ...state, content: {
@@ -44,3 +48,4 @@ export const setPriceRate = (priceRate) => ({type: SET_PRICE_RATE, priceRate})
 export const setContent = (content) => ({type: SET_CONTENT, content})
 export const setTime = (time) => ({type: SET_TIME, time})
 export const setPrice = (price) => ({type: SET_PRICE, price})
+export const setDeadline = (deadline) => ({type: SET_DEADLINE, deadline})

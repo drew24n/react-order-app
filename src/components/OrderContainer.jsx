@@ -2,10 +2,12 @@ import React, {useEffect} from 'react';
 import style from './OrderContainer.module.scss';
 import OrderInfo from "./OrderInfo/OrderInfo";
 import {useDispatch, useSelector} from "react-redux";
-import {setContent, setPrice, setPriceRate, setTime} from "../redux/orderReducer";
+import {setContent, setDeadline, setPrice, setPriceRate, setTime} from "../redux/orderReducer";
 import FirstSection from "./OrderForm/FirstSection/FirstSection";
 import SecondSection from "./OrderForm/SecondSection/SecondSection";
 import ThirdSection from "./OrderForm/ThirdSection/ThirdSection";
+import {calcDeadline} from "./calcDeadline";
+import moment from "moment";
 
 export function OrderContainer() {
     const dispatch = useDispatch()
@@ -36,6 +38,8 @@ export function OrderContainer() {
         } else return normalTime
     }()
 
+    const deadline = calcDeadline(time, moment())
+
     function addFile(file) {
         if (file.target.files[0].size > 0) {
             dispatch(setContent({
@@ -63,13 +67,15 @@ export function OrderContainer() {
 
     useEffect(() => {
         if (orderState.content.length && orderState.lang) {
-            dispatch(setTime(time))
             dispatch(setPrice(price))
+            dispatch(setTime(time))
+            dispatch(setDeadline(deadline))
         } else if (!orderState.content.length) {
-            dispatch(setTime(0))
             dispatch(setPrice(0))
+            dispatch(setTime(0))
+            dispatch(setDeadline(''))
         }
-    }, [orderState.content.length, orderState.lang, time, price, dispatch])
+    }, [orderState.content.length, orderState.lang, time, price, deadline, dispatch])
 
     return (
         <form onSubmit={e => e.preventDefault()} className={style.container}>
